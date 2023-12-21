@@ -1,27 +1,41 @@
-#ifndef BASE_CONSTANTS_H
-#define BASE_CONSTANTS_H
+#ifndef BASE_CONTEXT_H
+#define BASE_CONTEXT_H
 
-#include "types.h"
-static const i8  min_i8  = (i8)  0x80;
-static const i16 min_i16 = (i16) 0x8000;
-static const i32 min_i32 = (i32) 0x80000000;
-static const i64 min_i64 = (i64) 0x8000000000000000llu;
+// https://sourceforge.net/p/predef/wiki/Home/
 
-static const i8  max_i8  = (i8)  0x7f;
-static const i16 max_i16 = (i16) 0x7fff;
-static const i32 max_i32 = (i32) 0x7fffffff;
-static const i64 max_i64 = (i64) 0x7fffffffffffffffllu;
+// Compiler
+#if defined (__clang__)
+#	define COMPILER_CLANG
+#elif defined (_MSC_VER)
+#	define COMPILER_CL
+#elif defined (__GNUC__)
+#	define COMPILER_GCC
+#else
+#	error Missing compiler detection
+#endif
 
-static const u8  max_u8  = 0xff;
-static const u16 max_u16 = 0xffff;
-static const u32 max_u32 = 0xffffffff;
-static const u64 max_u64 = 0xffffffffffffffffllu;
+// OS
+#if defined (__gnu_linux__)
+#	define OS_LINUX
+#elif defined (__APPLE__) && defined (__MACH__)
+#	define OS_MAC
+#elif defined (_WIN32) || defined (_WIN64)
+#	define OS_WINDOWS
+#else
+#	error Missing os detection
+#endif
 
-static f32 inf_f32(void);
-static f32 neg_inf_f32(void);
+// Architecture
+#if defined (__amd64__) || defined (_M_AMD64) || defined (__x86_64__) || defined (__x86_64)
+#	define ARCH_X64
+#elif defined (__i386__) || defined (_M_IX86) || defined (_X86_) || defined (_M_I386)
+#	define ARCH_X86
+#elif defined (__arm__) || defined (_M_ARM)
+#	define ARCH_ARM
+#elif defined (__aarch64__) || defined (_M_ARM64)
+#	define ARCH_ARM64
+#else
+#	error Missing arch detection
+#endif
 
-static f64 inf_f64(void);
-static f64 neg_inf_f64(void);
-
-
-#endif /* BASE_CONSTANTS_H */
+#endif /* BASE_CONTEXT_H */

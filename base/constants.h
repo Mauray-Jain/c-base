@@ -23,4 +23,60 @@ static const f32 e_f32  = 2.71828182846f;
 static const f64 pi_f64 = 3.14159265359;
 static const f64 e_f64  = 2.71828182846;
 
+// Symbolic constants
+
+typedef enum Axis{
+  Axis_X,
+  Axis_Y,
+  Axis_Z,
+  Axis_W
+} Axis;
+
+typedef enum Side{
+  Side_Min,
+  Side_Max
+} Side;
+
+typedef enum OperatingSystem{
+  OperatingSystem_Null,
+  OperatingSystem_Windows,
+  OperatingSystem_Linux,
+  OperatingSystem_Mac,
+  OperatingSystem_COUNT
+} OperatingSystem;
+
+typedef enum Architecture{
+  Architecture_Null,
+  Architecture_X64,
+  Architecture_X86,
+  Architecture_Arm,
+  Architecture_Arm64,
+  Architecture_COUNT
+} Architecture;
+
+typedef enum Month{
+  Month_Jan,
+  Month_Feb,
+  Month_Mar,
+  Month_Apr,
+  Month_May,
+  Month_Jun,
+  Month_Jul,
+  Month_Aug,
+  Month_Sep,
+  Month_Oct,
+  Month_Nov,
+  Month_Dec
+} Month;
+
+typedef enum DayOfWeek{
+  DayOfWeek_Sunday,
+  DayOfWeek_Monday,
+  DayOfWeek_Tuesday,
+  DayOfWeek_Wednesday,
+  DayOfWeek_Thursday,
+  DayOfWeek_Friday,
+  DayOfWeek_Saturday
+} DayOfWeek;
+
 #endif /* BASE_CONSTANTS_H */
