@@ -79,4 +79,12 @@ typedef enum DayOfWeek{
   DayOfWeek_Saturday
 } DayOfWeek;
 
+OperatingSystem operating_system_from_context(void);
+Architecture architecture_from_context(void);
+
+char* string_from_operating_system(OperatingSystem os);
+char* string_from_architecture(Architecture arch);
+char* string_from_month(Month month);
+char* string_from_day_of_week(DayOfWeek day_of_week);
+
 #endif /* BASE_CONSTANTS_H */

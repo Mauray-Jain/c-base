@@ -55,4 +55,28 @@
 #define MemoryCopyArray(d, s) MemoryCopy((d), (s), Min(sizeof(d), sizeof(s)))
 #define MemoryCopyTyped(d, s, c) MemoryCopy((d), (s), Min(sizeof(*(d)), sizeof(*(s)) * (c)))
 
+// Doubly Linked Lists
+// f = first, l = last, n = node to be inserted
+#define DLLPushBack_NP(f, l, n, next, prev) ( ((f) == 0)? \
+( (f) = (l) = (n), (n)->next = (n)->prev = 0 ): \
+( (n)->prev = (l), (l)->next = (n), (l) = (n), (n)->next = 0 ) \
+)
+#define DLLPushBack(f, l, n)  DLLPushBack_NP(f, l, n, next, prev)
+#define DLLPushFront(f, l, n) DLLPushBack_NP(l, f, n, prev, next)
+// f = first, l = last, n = node to be removed
+#define DLLRemove_NP(f, l, n, next, prev) ( ((f) == (n))? \
+( ((f) == (l))? ( (f) = (l) = 0 ): ( (f) = (f)->next, (f)->prev = 0 ) ): \
+( ((l) == (n))? ( (l) = (l)->prev, (l)->next = 0 ): ( (n)->prev->next = (n)->next, (n)->next->prev = (n)->prev ) ) \
+)
+#define DLLRemove(f, l, n)  DLLRemove_NP(f, l, n, next, prev)
+
+// Singly Linked List
+#define SLLQueueEnqueue_N(f, n, next) ((n)->next = (f), (f) = (n))
+#define SLLQueueEnqueue(f, n) SLLQueueEnqueue_N(f, n, next)
+#define SLLQueueDequeue_N(f, next) ( ((f) == 0)? 0: ((f) = (f)->next) )
+#define SLLQueueDequeue(f, n) SLLQueueDequeue_N(f, n, next)
+
+#define SLLStackPush_N(f, l, n, next) ( ((f) == 0)? ((f) = (l) = (n), (n)->next = 0): ((l)->next = (n), (l) = (n), (n)->next = 0) )
+#define SLLStackPush(f, l, n) SLLStackPush_N(f, l, n, next)
+
 #endif /* BASE_MACROS_H */
