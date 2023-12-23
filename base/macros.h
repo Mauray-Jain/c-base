@@ -78,5 +78,9 @@
 
 #define SLLStackPush_N(f, l, n, next) ( ((f) == 0)? ((f) = (l) = (n), (n)->next = 0): ((l)->next = (n), (l) = (n), (n)->next = 0) )
 #define SLLStackPush(f, l, n) SLLStackPush_N(f, l, n, next)
+#define SLLStackPushFront_N(f, l, n, next) ( ((f) == 0)? ((f) = (l) = (n), (n)->next = 0): ((n)->next = (f), (f) = (n)) )
+#define SLLStackPushFront(f, l) SLLStackPushFront_N(f, l, next)
+#define SLLStackPop_N(f, l, next) ( ((f) == (l))? ((f) = (l) = 0): ((f) = (f)->next) )
+#define SLLStackPop(f, l) SLLStackPop_N(f, l, next)
 
 #endif /* BASE_MACROS_H */
