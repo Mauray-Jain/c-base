@@ -30,6 +30,15 @@
 
 #define ArrayLen(arr) ( sizeof(arr) / sizeof(*(arr)) )
 
+#define KB(x) ( (x) << 10 )
+#define MB(x) ( (x) << 20 )
+#define GB(x) ( (x) << 30 )
+#define TB(x) ( (u64)(x) << 40llu )
+
+#define AlignUpPow2(x, p) (((x) + (p) - 1)&~((p) - 1))
+#define AlignDownPow2(x, p) ((x)&~((p) - 1))
+#define IsPow2OrZero(x) ( ((x)&((x) - 1)) == 0 )
+
 // This generates a warning, may not standard compliant but works
 #define IntFromPtr(p) ( (unsigned long long)((char*)(p) - (char*)0) )
 #define PtrFromInt(n) ( (void*)((char*)0 + (n)) )

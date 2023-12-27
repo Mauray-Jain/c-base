@@ -9,15 +9,34 @@ typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
 
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
+typedef uint8_t   u8;
+typedef uint16_t  u16;
+typedef uint32_t  u32;
+typedef uint64_t  u64;
+typedef size_t    usize;
+typedef uintptr_t uptr;
 
 typedef float  f32;
 typedef double f64;
 
 // Compound types
+
+typedef struct str8 {
+	u8* str; // \0 terminated
+	usize len; // Doesn't include \0
+} str8;
+
+typedef struct str8node {
+	struct str8node* next;
+	str8 string;
+} str8node;
+
+typedef struct str8list {
+	str8node* first;
+	str8node* last;
+	usize node_count;
+	usize total_len;
+} str8list;
 
 #define GENERATE_V2(T) \
 typedef struct v2##T { \
