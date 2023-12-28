@@ -1,7 +1,9 @@
 #include "string.h"
+#include <stdarg.h>
+#include <stdio.h>
 
-str8 str8_from_str(u8* str, usize len){
-	str8 ret = {str, len};
+str8 str8_from_str(u8* str, usize size){
+	str8 ret = {str, size};
 	return ret;
 }
 
@@ -18,9 +20,9 @@ str8 str8_from_cstr(u8* str){
 }
 
 i8 str8_eql(str8 a, str8 b){
-	if (a.len != b.len) return 0;
+	if (a.size != b.size) return 0;
 	if (a.str == b.str) return 1;
-	for (usize i = 0; i < a.len; i++) {
+	for (usize i = 0; i < a.size; i++) {
 		if (a.str[i] != b.str[i]) {
 			return 0;
 		}
@@ -29,14 +31,14 @@ i8 str8_eql(str8 a, str8 b){
 }
 
 i8 str8str8(str8 haystack, str8 needle){
-	if (needle.len > haystack.len) {
+	if (needle.size > haystack.size) {
 		return 0;
-	} else if (needle.len == haystack.len) {
+	} else if (needle.size == haystack.size) {
 		return str8_eql(haystack, needle);
 	} else {
-		for (usize i = 0; i <= haystack.len - needle.len; i++) {
+		for (usize i = 0; i <= haystack.size - needle.size; i++) {
 			str8 slice = {0};
-			slice.len = needle.len;
+			slice.size = needle.size;
 			slice.str = &haystack.str[i];
 			if (str8_eql(slice, needle)) return 1;
 		}
@@ -45,22 +47,32 @@ i8 str8str8(str8 haystack, str8 needle){
 }
 
 i8 str8chr(str8 haystack, u8 needle){
-	for (usize i = 0; i <= haystack.len; i++) {
+	for (usize i = 0; i <= haystack.size; i++) {
 		if (haystack.str[i] == needle) return 1;
 	}
 	return 0;
 }
 
+str8 str8cpy(Arena* arena, str8 str){
+	u8* strcopy = push_arr(arena, u8, str.size);
+	MemoryCopy(strcopy, str.str, str.size);
+	str8 ret = {0};
+	ret.size = str.size;
+	ret.str = strcopy;
+	ret.str[ret.size] = '\0';
+	return ret;
+}
+
 usize str8_count(str8 haystack, str8 needle){
-	if (needle.len > haystack.len) {
+	if (needle.size > haystack.size) {
 		return 0;
-	} else if (needle.len == haystack.len) {
+	} else if (needle.size == haystack.size) {
 		return str8_eql(haystack, needle);
 	} else {
 		usize cnt = 0;
-		for (usize i = 0; i <= haystack.len - needle.len; i++) {
+		for (usize i = 0; i <= haystack.size - needle.size; i++) {
 			str8 slice = {0};
-			slice.len = needle.len;
+			slice.size = needle.size;
 			slice.str = &haystack.str[i];
 			cnt += str8_eql(slice, needle);
 		}
@@ -71,23 +83,23 @@ usize str8_count(str8 haystack, str8 needle){
 void str8list_push(str8list* list, str8 str, str8node* node){
 	node->string = str;
 	SLLStackPush(list->first, list->last, node);
-	list->total_len += node->string.len;
+	list->total_size += node->string.size;
 	list->node_count++;
 }
 
 str8 str8list_join(Arena* arena, str8list* list, str8 separator){
-	usize size = list->total_len + separator.len * (list->node_count - 1);
+	usize size = list->total_size + separator.size * (list->node_count - 1);
 	u8* str = push_arr(arena, u8, size + 1);
 	u8* ptr = str;
 	i8 is_mid = 0;
 
 	for (str8node* node = list->first; node != NULL; node = node->next) {
 		if (is_mid) {
-			MemoryCopy(ptr, separator.str, separator.len);
-			ptr += separator.len;
+			MemoryCopy(ptr, separator.str, separator.size);
+			ptr += separator.size;
 		}
-		MemoryCopy(ptr, node->string.str, node->string.len);
-		ptr += node->string.len;
+		MemoryCopy(ptr, node->string.str, node->string.size);
+		ptr += node->string.size;
 		is_mid = 1;
 	}
 	*ptr = '\0';
@@ -101,10 +113,10 @@ str8list str8_split_any(Arena* arena, str8 str, str8 delim){
 	list.first = 0;
 	list.last = 0;
 	list.node_count = 0;
-	list.total_len = 0;
+	list.total_size = 0;
 	u8* ptr = str.str;
 	u8* word_start = ptr;
-	u8* last = str.str + str.len;
+	u8* last = str.str + str.size;
 	for (;ptr < last; ptr++) {
 		if (str8chr(delim, *ptr)) {
 			str8node* node = push_arr(arena, str8node, 1);
@@ -119,4 +131,23 @@ str8list str8_split_any(Arena* arena, str8 str, str8 delim){
 		word_start = ptr + 1;
 	}
 	return list;
+}
+
+str8 str8_fmtv(Arena* arena, char* fmt, va_list args){
+	va_list args2;
+	va_copy(args2, args);
+	usize buf_size = 1 + vsnprintf(NULL, 0, fmt, args);
+	u8* str = push_arr(arena, u8, buf_size);
+	vsnprintf((char*) str, buf_size, fmt, args2);
+	va_end(args2);
+	str8 ret = str8_from_str(str, buf_size - 1);
+	return ret;
+}
+
+str8 str8_fmt(Arena* arena, char* fmt, ...){
+	va_list args;
+	va_start(args, fmt);
+	str8 ret = str8_fmtv(arena, fmt, args);
+	va_end(args);
+	return ret;
 }

@@ -23,7 +23,7 @@ typedef double f64;
 
 typedef struct str8 {
 	u8* str; // \0 terminated
-	usize len; // Doesn't include \0
+	usize size; // Doesn't include \0 basically sizeof str
 } str8;
 
 typedef struct str8node {
@@ -35,7 +35,7 @@ typedef struct str8list {
 	str8node* first;
 	str8node* last;
 	usize node_count;
-	usize total_len;
+	usize total_size;
 } str8list;
 
 #define GENERATE_V2(T) \
