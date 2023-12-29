@@ -38,6 +38,11 @@ typedef struct str8list {
 	usize total_size;
 } str8list;
 
+typedef struct utfdecode {
+	u32 codepoint;
+	usize size;
+} utfdecode;
+
 #define GENERATE_V2(T) \
 typedef struct v2##T { \
 	T x; \

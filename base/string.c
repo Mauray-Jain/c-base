@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+// Str8 constructors
+
 str8 str8_from_str(u8* str, usize size){
 	str8 ret = {str, size};
 	return ret;
@@ -18,6 +20,8 @@ str8 str8_from_cstr(u8* str){
 	str8 ret = str8_from_range(str, ptr);
 	return ret;
 }
+
+// Str8 helpers
 
 i8 str8_eql(str8 a, str8 b){
 	if (a.size != b.size) return 0;
@@ -133,6 +137,8 @@ str8list str8_split_any(Arena* arena, str8 str, str8 delim){
 	return list;
 }
 
+// Format string helpers
+
 str8 str8_fmtv(Arena* arena, char* fmt, va_list args){
 	va_list args2;
 	va_copy(args2, args);
@@ -150,4 +156,71 @@ str8 str8_fmt(Arena* arena, char* fmt, ...){
 	str8 ret = str8_fmtv(arena, fmt, args);
 	va_end(args);
 	return ret;
+}
+
+// Unicode functions
+
+// doesn't validate the sequence
+utfdecode str8_decode_utf8(str8 str){ // str will be str8 with utf8 bytes
+	utfdecode ret = {0};
+	const u8 lengths[] = {
+		1, 1, 1, 1, // 00000 - 00011
+		1, 1, 1, 1, // 00100 - 00111
+		1, 1, 1, 1, // 01000 - 01100
+		1, 1, 1, 1, // 01101 - 01111
+		0, 0, 0, 0, // 10000 - 10011
+		0, 0, 0, 0, // 10100 - 10111
+		2, 2, 2, 2, // 11000 - 11011
+		3, 3,       // 11100 - 11101
+		4,          // 11110
+		0           // 11111
+	};
+	const i8 masks[] = {0x0, 0x7f, 0x1f, 0x0f, 0x07};
+	const i8 final_shifts[] = {0, 18, 12, 6, 0};
+	u8 byte = str.str[0];
+	const u8 len = lengths[byte >> 3];
+	ret.codepoint = 0x0;
+	ret.size = 1;
+
+	if (0 < len && len <= str.size) {
+		u32 cp = (byte & masks[len]) << 18; // 6 * 3
+		switch (len) {
+			case 4: cp |= ((str.str[3] & 0x3f) << 0);  // fallthrough
+			case 3: cp |= ((str.str[2] & 0x3f) << 6);  // fallthrough
+			case 2: cp |= ((str.str[1] & 0x3f) << 12); // fallthrough
+			default: break;
+		}
+		cp >>= final_shifts[len];
+		ret.codepoint = cp;
+		ret.size = len;
+	}
+
+	return ret;
+}
+
+usize str_encode_utf8(u8* dest, u32 codepoint){
+	usize size = 0;
+	if (codepoint < (1 << 8)) {
+		dest[0] = (u8) codepoint;
+		size = 1;
+	} else if (codepoint < (1 << 11)) {
+		dest[0] = 0xc0 | (codepoint >> 6);
+		dest[1] = 0x80 | (codepoint & 0x3f);
+		size = 2;
+	} else if (codepoint < (1 << 16)) {
+		dest[0] = 0xe0 | (codepoint >> 12);
+		dest[1] = 0x80 | ((codepoint >> 6) & 0x3f);
+		dest[2] = 0x80 | (codepoint & 0x3f);
+		size = 3;
+	} else if (codepoint < (1 << 21)) {
+		dest[0] = 0xf0 | (codepoint >> 18);
+		dest[1] = 0x80 | ((codepoint >> 12) & 0x3f);
+		dest[2] = 0x80 | ((codepoint >>  6) & 0x3f);
+		dest[3] = 0x80 | (codepoint & 0x3f);
+		size = 4;
+	} else {
+		dest[0] = 0x0;
+		size = 1;
+	}
+	return size;
 }
